@@ -1,0 +1,47 @@
+[size=5][b]Expeditions[/b][/size]
+
+Send a survivor of your base on an expedition. They walk out past the edge of the base, and when the time is up they come back with loot of their trade [b]straight into the base's chests[/b].
+
+[b]Blacksmith[/b]: ore, stone and gems · [b]Carpenter[/b]: wood, resin and fibre · [b]Hunter[/b]: hides, bones and meat · [b]Alchemist[/b]: herbs, mushrooms and spores · [b]Farmer[/b]: crops, grain and wool · [b]Fisher[/b]: fish
+
+[size=4][b]Features[/b][/size]
+[list]
+[*][b]Routes by region[/b], from the Springlands to Cinder's Cradle, each with its own loot and danger. A route opens once you have been to its region yourself.
+[*][b]Rations[/b] from the base's chests: plain food, roasted food (+10% loot) or dishes (+25%). The plainest food of the kind goes first; herbs, eggs, raw meat and bait are never taken.
+[*][b]Experience[/b]: time away levels a survivor up, +6% loot and -7% risk a level, up to level 10.
+[*][b]Events on the way[/b]: a cache, a rich spot, bad weather or an injury. The risk is shown before you send someone.
+[*][b]Repeat[/b]: the survivor delivers the loot and sets out again on the same route.
+[*][b]A panel on the screen[/b] with everyone away and a [b]report[/b] of every trip with the items.
+[*][b]Everything can be switched off[/b] in the game; durations, routes, loot and dangers are in expeditions_config.json.
+[*][b]English and Russian[/b], as Windows, or chosen in the settings.
+[/list]
+
+[size=4][b]Requirements[/b][/size]
+[list]
+[*][url=https://www.nexusmods.com/enshrouded/mods/278]shroudlink[/url]. In singleplayer: [i]shroudlink-singleplayer.zip[/i] in the game folder. On a server: the shroudlink core on the server and the addon (dinput8.dll) for every player.
+[/list]
+
+[size=4][b]Install[/b][/size]
+[list=1]
+[*]Install shroudlink.
+[*]Unpack [i]expeditions-1.0.0.zip[/i] into the game folder (or the server's folder): [i]shroudlink_mods\expeditions.dll[/i].
+[*]Playing with [url=https://www.nexusmods.com/enshrouded/mods/220]The Worst Map Mod[/url] (or another Greeneye Loader mod)? Also unpack the optional file [i]expeditions-mapmod-compat[/i] ([i]greeneye\0-shroudlink-first[/i]). Without it the game can crash when you enter the world, because both mods hook the same game function at start.
+[*]In the game: [b]K[/b] (the MODS tab) > [b]Expeditions[/b].
+[/list]
+
+[size=4][b]How to use[/b][/size]
+Stand at your base near a survivor, open K > Expeditions, pick the survivor, a route, a duration and rations, and click Send. When the time is up and you are at the base, the survivor walks home and the loot goes into the chests (chests that already hold the item first). Click an expedition to call the survivor back early, or an entry under "Recently back" to see what they brought.
+
+[size=4][b]Uninstall[/b][/size]
+Wait until everyone is back (a survivor still away stays outside the base; the Summoning Staff brings them back), then delete [i]shroudlink_mods\expeditions.dll[/i].
+
+[size=4][b]Notes[/b][/size]
+[list]
+[*]Made and tested in singleplayer. On a dedicated server it runs like any shroudlink server mod; that setup is not tested yet.
+[*]Loot is only delivered while a player is at the base (the chests have to be loaded).
+[*]Open source (MIT): [url=https://github.com/GronGM/enshrouded-expeditions]github.com/GronGM/enshrouded-expeditions[/url]. The region map comes from The Worst Map Mod by Greeneye0 (MIT).
+[/list]
+
+[size=4][b]Русский[/b][/size]
+Отправьте выжившего с базы в поход: он уйдёт за пределы базы и вернётся с добычей своего ремесла прямо в сундуки базы. Маршруты по регионам (открываются, когда вы там побываете), припасы из сундуков, опыт и уровни, события в пути, повтор похода, панель на экране и отчёты. Интерфейс на русском и английском.
+Нужен [url=https://www.nexusmods.com/enshrouded/mods/278]shroudlink[/url]. С модом карты The Worst Map Mod поставьте и дополнительный файл [i]expeditions-mapmod-compat[/i], иначе игра может упасть при входе в мир. В игре: K > Экспедиции. Подробности — в README-expeditions-ru.txt внутри архива.

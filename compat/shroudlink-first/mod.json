@@ -1,0 +1,10 @@
+{
+    "id": "0-shroudlink-first",
+    "name": "shroudlink first",
+    "version": "1.0.0",
+    "dll": "shroudlink-first.dll",
+    "side": "client",
+    "api": 1,
+    "description": "Holds the other Greeneye mods back until the shroudlink addon has hooked the game's play-state UI, so the Worst Map Mod chains onto that hook instead of racing it (the race crashed the game on entering the world).",
+    "author": "GronGM"
+}
