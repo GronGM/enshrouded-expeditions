@@ -1,0 +1,14 @@
+{
+  "id": "expeditions",
+  "name": "Expeditions",
+  "version": "1.0.0",
+  "description": "Send your base's survivors on expeditions: they come back with loot of their trade into the base's chests. Routes by region, rations, experience and levels, events on the way, repeat, an on-screen panel. English and Russian.",
+  "authors": ["GronGM"],
+  "emf": 24,
+  "side": "client",
+  "settings": [
+    {"key": "open_key", "type": "keybind", "default": "F10", "label": "Key that opens the Expeditions window", "live": true},
+    {"key": "hud_place", "type": "choice", "choices": ["top right", "bottom right", "bottom left"], "default": 0,
+     "label": "Where the panel with the expeditions sits", "live": true}
+  ]
+}

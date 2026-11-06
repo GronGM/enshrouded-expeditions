@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+- A build for EMF (Enshrouded Modding Framework 0.5.0+): `expeditions-emf-<version>.zip`, the window on F10
+  (EMF's mod windows), the panel as EMF HUD lines, items into chests through EMF's inventory transactions
+  (what does not fit after all drops at the player's feet), readable item names in English and Russian.
+
 ## 1.0.0
 First release.
 - Send a survivor of the base on an expedition: route (region), duration, rations. They walk

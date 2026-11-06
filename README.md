@@ -45,14 +45,23 @@ Made and tested in singleplayer. On a dedicated server it runs like any shroudli
 
 Player guides: [English](dist/README-expeditions.txt) · [Русский](dist/README-expeditions-ru.txt).
 
+### With EMF instead of shroudlink
+
+The same mod is also built for [EMF](https://www.nexusmods.com/enshrouded/mods/246) (Enshrouded
+Modding Framework, 0.5.0 or newer): `expeditions-emf-1.0.0.zip` into the game folder
+(`emf\mods\expeditions\`). **F10** (or `expeditions` in EMF's console) opens the window; the key is
+in EMF's Mods tab. It runs in the game that runs the world (singleplayer or a world you host). Keep
+only one of the two versions installed. Guides: [English](dist/README-expeditions-emf.txt) ·
+[Русский](dist/README-expeditions-emf-ru.txt).
+
 ## Build
 
 The mod is C++20 against shroudlink's C ABI (`src/sdk.h`, ABI v8, HostApi v7+).
 
 ```sh
 pip install ziglang          # a Windows cross compiler (zig c++)
-./build_win.sh               # build/expeditions.dll
-./build_test.sh              # the tests (g++, a fake world, sanitizers)
+./build_win.sh               # build/expeditions.dll (shroudlink), build/emf/expeditions.dll (EMF)
+./build_test.sh              # the tests (g++, a fake world, sanitizers), also against a fake EMF core
 ./package.sh                 # build/release/*.zip
 compat/shroudlink-first/build_win.sh
 compat/shroudlink-first/run_tests.sh   # needs Wine
@@ -62,12 +71,15 @@ compat/shroudlink-first/run_tests.sh   # needs Wine
 |---|---|
 | `src/expeditions.cpp` | the mod: expeditions, windows, rations, events, levels, regions |
 | `src/dll.cpp` | the `shroudlink_mod_v2` export |
+| `src/emf_main.cpp`, `src/emf_host.cpp` | the EMF build: `emf_mod_load`, shroudlink's HostApi on top of EMF's C API |
+| `src/emf_ui.cpp` | the mod's windows as EMF mod windows (widgets, clicks, HUD lines) |
+| `src/item_names.cpp` | readable item names (EN/RU) for the EMF windows |
 | `src/defaults.h` | the default `expeditions_config.json` |
 | `src/lang.cpp` | Russian and English texts and names |
 | `src/page_text.cpp` | widths for the MODS page (Cyrillic is wider than the page assumes) |
 | `src/regions.cpp`, `third_party/greeneye_regions.h` | which region a position is in |
 | `src/supplies.cpp` | which items are rations |
-| `tests/` | tests against a fake shroudlink host |
+| `tests/` | tests against a fake shroudlink host and a fake EMF core; `emf_smoke.cpp` loads the EMF DLL in Wine |
 | `compat/shroudlink-first/` | the Greeneye Loader mod that orders the startup hooks |
 
 ## Русский

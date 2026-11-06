@@ -24,4 +24,8 @@ std::vector<std::string> wrap_lines(const std::string& text);
 // "Высокогорье кочевников (Nomad Highlands)" -> "Высокогорье кочевников"
 std::string short_region(const std::string& name);
 
+// Plain text (the EMF build): no padding and no line breaks, the window lays text out itself.
+void set_plain(bool plain);
+bool plain();
+
 }  // namespace exped::page

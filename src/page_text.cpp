@@ -14,6 +14,10 @@ constexpr double kSpaceUnits = 8;
 // text lines are broken here (the page is about 1350 units wide)
 constexpr double kLineUnits = 1200;
 
+static bool g_plain = false;
+void set_plain(bool plain) { g_plain = plain; }
+bool plain() { return g_plain; }
+
 std::vector<char32_t> code_points(const std::string& s) {
     std::vector<char32_t> out;
     for (size_t i = 0; i < s.size();) {
@@ -58,6 +62,7 @@ double text_units(const std::string& s) {
 
 // A list cell with trailing spaces, so that its column is as wide as the text really is.
 std::string pad_cell(const std::string& s) {
+    if (g_plain) return s;
     const double chars = static_cast<double>(code_points(s).size());
     const double need = std::ceil((text_units(s) + 4) / kPageGlyph) - chars;
     return need > 0 ? s + std::string(static_cast<size_t>(need), ' ') : s;
@@ -66,6 +71,7 @@ std::string pad_cell(const std::string& s) {
 // A button label with spaces on both sides: the button gets as wide as the text and the
 // text stays in its middle.
 std::string pad_label(const std::string& s) {
+    if (g_plain) return s;
     const double chars = static_cast<double>(code_points(s).size());
     const double extra = (text_units(s) - chars * kPageGlyph) / (2 * kPageGlyph - 2 * kSpaceUnits);
     const auto k = static_cast<size_t>(std::max(0.0, std::round(extra)));
@@ -82,6 +88,7 @@ std::string cells(std::initializer_list<std::string> parts) {
 
 // Lines of at most kLineUnits, broken at spaces.
 std::vector<std::string> wrap_lines(const std::string& text) {
+    if (g_plain) return {text};
     std::vector<std::string> lines;
     std::string line;
     double width = 0;
