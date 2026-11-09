@@ -17,4 +17,6 @@ cp dist/README-expeditions-emf.txt dist/README-expeditions-emf-ru.txt "$OUT/emf/
 (cd "$OUT/emf" && zip -qr "../expeditions-emf-$VERSION.zip" .)
 COMPAT_VERSION=$(sed -n 's/.*"version": *"\(.*\)".*/\1/p' compat/shroudlink-first/mod.json)
 (cd "$OUT/compat" && zip -qr "../expeditions-mapmod-compat-$COMPAT_VERSION.zip" .)
+# the same Greeneye Loader mod as a Nexus mod of its own
+(cd "$OUT/compat" && zip -qr "../shroudlink-first-$COMPAT_VERSION.zip" .)
 ls -l "$OUT"/*.zip

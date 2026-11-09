@@ -1,0 +1,33 @@
+[size=5][b]shroudlink first[/b][/size]
+
+Your game crashes when you enter the world since you put [url=https://www.nexusmods.com/enshrouded/mods/278]shroudlink[/url] next to a Greeneye Loader mod ([url=https://www.nexusmods.com/enshrouded/mods/220]The Worst Map Mod[/url], [url=https://www.nexusmods.com/enshrouded/mods/255]Town Portals[/url], [url=https://www.nexusmods.com/enshrouded/mods/272]Hollow Halls Progression[/url] and the other mods by GreeneyeDS)? This small mod fixes that, and both kinds of mods work together.
+
+[size=4][b]Why the game crashes[/b][/size]
+At start shroudlink (dinput8.dll) and the Greeneye mods hook the same game function, the UI in the world, at the same moment, from two threads. When a Greeneye mod writes its hook in the middle of shroudlink's, the game crashes on its first frame in the world. It depends on timing, so it can crash on one start and not on the next.
+
+[size=4][b]What this mod does[/b][/size]
+It starts first among the Greeneye mods and holds the others back until shroudlink's hook is in (usually under a second, 30 s at most). The other mods then chain onto shroudlink's hook and all of them work. It changes nothing in the game itself, and without shroudlink it does nothing.
+
+[size=4][b]Requirements[/b][/size]
+[list]
+[*][url=https://www.nexusmods.com/enshrouded/mods/278]shroudlink[/url]
+[*]A mod that runs on the Greeneye Loader (the loader, [i]dbgcore.dll[/i], comes with those mods)
+[/list]
+
+[size=4][b]Install[/b][/size]
+Copy the [i]greeneye[/i] folder from the zip into the game folder (next to enshrouded.exe), so you get [i]greeneye\0-shroudlink-first[/i]. Keep the folder name: the loader starts its mods in alphabetical order, and this one has to go first.
+To check: about 20 s after the start, [i]greeneye\0-shroudlink-first\shroudlink-first.log[/i] says "hook chain is sound".
+
+[size=4][b]Uninstall[/b][/size]
+Delete the folder [i]greeneye\0-shroudlink-first[/i].
+
+[size=4][b]Notes[/b][/size]
+[list]
+[*]It is the same file as the optional "mapmod compat" file of [url=https://www.nexusmods.com/enshrouded/mods/300]Expeditions[/url]. If you installed that one, you already have this mod.
+[*]Tested with The Worst Map Mod. Thanks to Tharen68 for testing it with Town Portals and Hollow Halls Progression.
+[*]Open source (MIT): [url=https://github.com/GronGM/enshrouded-expeditions/tree/main/compat/shroudlink-first]github.com/GronGM/enshrouded-expeditions[/url], folder compat/shroudlink-first.
+[/list]
+
+[size=4][b]Русский[/b][/size]
+Игра падает при входе в мир, когда вместе стоят [url=https://www.nexusmods.com/enshrouded/mods/278]shroudlink[/url] и моды на загрузчике Greeneye (The Worst Map Mod, Town Portals, Hollow Halls Progression и другие моды GreeneyeDS)? Этот мод это исправляет. При запуске shroudlink и моды Greeneye одновременно перехватывают одну и ту же функцию игры, и если мод Greeneye влезает посреди перехвата shroudlink, игра падает. Этот мод запускается первым и держит остальные моды Greeneye, пока shroudlink не закончит (обычно меньше секунды, не дольше 30 с).
+Установка: папку [i]greeneye[/i] из архива скопировать в папку игры (рядом с enshrouded.exe), получится [i]greeneye\0-shroudlink-first[/i]; имя папки не менять. Удаление: удалить эту папку.

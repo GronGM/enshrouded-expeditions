@@ -1,0 +1,1 @@
+Fixes the crash on entering the world when shroudlink and Greeneye Loader mods (The Worst Map Mod, Town Portals, Hollow Halls Progression...) are installed together: the Greeneye mods wait until shroudlink has hooked the game, then chain onto it.
