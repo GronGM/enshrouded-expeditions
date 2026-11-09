@@ -100,12 +100,70 @@ std::map<uint32_t, uint32_t> g_max_stack;
 bool g_pending_open = false, g_pending_close = false;
 emfui::Window g_pending, g_shown;
 bool g_open = false;
+bool g_told_refused = false;  // once per world
 size_t g_hud_count = 0;
 
 double (*g_clock)() = &platform::steady_seconds;
 
 void log_line(const std::string& text) {
     if (g_api && g_api->log) g_api->log(kModId, "%s", text.c_str());
+}
+
+#ifdef _WIN32
+std::string utf8(const std::wstring& w) {
+    if (w.empty()) return "";
+    const int n = WideCharToMultiByte(CP_UTF8, 0, w.c_str(), static_cast<int>(w.size()), nullptr, 0, nullptr, nullptr);
+    std::string out(n > 0 ? n : 0, '\0');
+    if (n > 0) WideCharToMultiByte(CP_UTF8, 0, w.c_str(), static_cast<int>(w.size()), out.data(), n, nullptr, nullptr);
+    return out;
+}
+std::string env(const wchar_t* name) {
+    wchar_t buf[2048];
+    const DWORD n = GetEnvironmentVariableW(name, buf, 2048);
+    if (!n) return "(not set)";
+    if (n >= 2048) return "(too long)";
+    return utf8(std::wstring(buf, n));
+}
+bool elevated() {
+    HANDLE token = nullptr;
+    if (!OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &token)) return false;
+    TOKEN_ELEVATION e{};
+    DWORD n = 0;
+    const bool yes = GetTokenInformation(token, TokenElevation, &e, sizeof e, &n) && e.TokenIsElevated;
+    CloseHandle(token);
+    return yes;
+}
+// "1.4.341.0 (C:\Windows\SYSTEM32\vulkan-1.dll)": the Vulkan loader the game loaded
+std::string vulkan_loader() {
+    HMODULE m = GetModuleHandleW(L"vulkan-1.dll");
+    if (!m) return "not loaded yet";
+    wchar_t path[MAX_PATH] = {};
+    GetModuleFileNameW(m, path, MAX_PATH);
+    std::string version = "version unknown";
+    DWORD handle = 0;
+    const DWORD size = GetFileVersionInfoSizeW(path, &handle);
+    if (size) {
+        std::vector<uint8_t> info(size);
+        VS_FIXEDFILEINFO* fixed = nullptr;
+        UINT len = 0;
+        if (GetFileVersionInfoW(path, 0, size, info.data()) && VerQueryValueW(info.data(), L"\\", reinterpret_cast<void**>(&fixed), &len) && fixed)
+            version = std::to_string(HIWORD(fixed->dwFileVersionMS)) + "." + std::to_string(LOWORD(fixed->dwFileVersionMS)) + "." +
+                      std::to_string(HIWORD(fixed->dwFileVersionLS)) + "." + std::to_string(LOWORD(fixed->dwFileVersionLS));
+    }
+    return version + " (" + utf8(path) + ")";
+}
+#endif
+
+// What decides whether EMF's overlay (a Vulkan layer) gets into the game: logged at start and when a window is refused.
+void log_overlay_facts(const char* when) {
+#ifdef _WIN32
+    log_line(std::string("diagnostics (") + when + "): game as administrator: " + (elevated() ? "YES (Windows' Vulkan loader then ignores EMF's layer)" : "no") +
+             "; vulkan-1.dll " + vulkan_loader() + "; VK_ADD_LAYER_PATH=" + env(L"VK_ADD_LAYER_PATH") + "; VK_INSTANCE_LAYERS=" + env(L"VK_INSTANCE_LAYERS") +
+             "; VK_LOADER_LAYERS_DISABLE=" + env(L"VK_LOADER_LAYERS_DISABLE") + "; VK_LOADER_LAYERS_ENABLE=" + env(L"VK_LOADER_LAYERS_ENABLE") +
+             "; VK_LAYER_PATH=" + env(L"VK_LAYER_PATH"));
+#else
+    (void)when;
+#endif
 }
 
 // nothing may unwind into EMF: a failure is logged and the call dropped
@@ -467,7 +525,15 @@ void flush_window() {
         if (!shown) shown = g_api->window_open(&def);
         g_open = shown;
         if (shown) g_shown = g_pending;
-        else log_line("could not open the window (another window or the console's wheel is open?)");
+        else {
+            // EMF says why in the line before ("window_open refused ..."); the mod stops refreshing a window it does not have
+            if (!g_told_refused) {
+                g_told_refused = true;
+                log_line("EMF did not open the window (its reason is in the line above); with no EMF overlay nothing can be shown");
+                log_overlay_facts("window refused");
+            }
+            g_mod.message(&g_host, g_ctx, kClient, emfui::closed_event());
+        }
     } else if (g_pending_close) {
         if (g_open) g_api->window_close(kWindowId);
         g_open = false;
@@ -547,6 +613,7 @@ void on_tick_inner(EmfWorld* world) {
         g_session = session;
         g_joined = true;
         g_open = false;
+        g_told_refused = false;
         for (size_t i = 0; i < g_hud_count; ++i) {
             char id[48];
             snprintf(id, sizeof id, "expeditions.hud.%02u", static_cast<unsigned>(i));
@@ -637,6 +704,7 @@ bool start(const EmfApi* api, const std::string& dir) {
     }
     api->on_tick(on_tick, nullptr);
     api->register_command("expeditions", ": open the Expeditions window", command, nullptr);
+    log_overlay_facts("start");
     log_line(std::string("EMF build ") + kVersion + (g_blocked ? " (off)" : "") + "; the window opens with the key set in the Mods tab or the console command 'expeditions'");
     return true;
 }

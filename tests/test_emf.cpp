@@ -158,7 +158,11 @@ void capture(const EmfWindowDef* def) {
         window.widgets.push_back(x);
     }
 }
+bool refuse_windows = false;  // the overlay cannot draw (EMF's Vulkan layer is not in the game)
+int open_tries = 0;
 bool window_open(const EmfWindowDef* def) {
+    ++open_tries;
+    if (refuse_windows) return false;
     capture(def);
     window.open = true;
     window.cb = def->cb;
@@ -481,6 +485,20 @@ static void test_host() {
     fake::tick(6);
     CHECK(fake::puts.empty());
     CHECK(exped::emfhost::mod_for_tests().expeditions().size() == 1 && exped::emfhost::mod_for_tests().expeditions()[0].told_full);
+
+    // EMF cannot draw windows: the mod is told it is closed and does not try again every refresh
+    fake::command_cb(fake::kWorld, 1, nullptr, nullptr);
+    if (fake::window.open) fake::command_cb(fake::kWorld, 1, nullptr, nullptr);
+    fake::window.open = false;
+    fake::refuse_windows = true;
+    fake::open_tries = 0;
+    fake::command_cb(fake::kWorld, 1, nullptr, nullptr);
+    CHECK(fake::open_tries == 1 && !fake::window.open);
+    for (int i = 0; i < 10; ++i) fake::tick(6);
+    CHECK(fake::open_tries == 1);
+    fake::refuse_windows = false;
+    fake::command_cb(fake::kWorld, 1, nullptr, nullptr);
+    CHECK(fake::window.open);
 
     fs::remove_all(dir);
 }
