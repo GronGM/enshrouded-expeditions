@@ -375,7 +375,8 @@ bool api_write_component(uint32_t entity, uint32_t hash, const uint8_t* data, si
 size_t api_inventories_near(uint32_t entity, double radius, uint32_t* out, size_t cap) {
     const auto found = nearby(entity, radius, [](uint32_t id) {
         const InventorySetup* s = setup_of(id);
-        return s && s->initialized && !is_player(id);
+        // a chest whose slots are not there yet (just loaded) is not a chest yet
+        return s && s->initialized && !is_player(id) && !read_stock(id).empty();
     });
     for (size_t i = 0; i < found.size() && i < cap; ++i) out[i] = found[i];
     return found.size();

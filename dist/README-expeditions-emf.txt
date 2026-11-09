@@ -1,4 +1,4 @@
-Expeditions for EMF (Enshrouded Modding Framework) 1.0.0
+Expeditions for EMF (Enshrouded Modding Framework) 1.1.0
 ========================================================
 The same mod as the shroudlink version, for players who use EMF.
 Send a survivor of your base on an expedition. They come back with loot of their
@@ -33,6 +33,17 @@ panel on the screen work as in the shroudlink version (see README-expeditions.tx
 or the Nexus page). Settings: Expeditions > Settings in the window, and
 expeditions_config.json in the game folder. The panel's corner is in EMF's Mods tab.
 Item names in the window are the mod's own (EMF cannot show the game's item names yet).
+
+IF EMF'S CONSOLE (AND THIS WINDOW) DOES NOT OPEN
+  EMF draws its console, its windows and its lines on the screen through a Vulkan layer.
+  When the game runs as administrator (for example with UAC switched off in Windows),
+  Windows' Vulkan loader leaves that layer out: emf\emf_core.log says "the game's Vulkan
+  device did not come through EMF's layer", and Expeditions' line there says
+  "game as administrator: YES". Register the layer once, in a command prompt that runs as
+  administrator (put your game folder into the path):
+    reg add "HKLM\SOFTWARE\Khronos\Vulkan\ExplicitLayers" /v "<game folder>\emf\vk\VkLayer_EMF_console.json" /t REG_DWORD /d 0 /f
+  It only takes effect in the game started with EMF. To undo it, run the same line with
+  "reg delete" instead of "reg add" and without "/t REG_DWORD /d 0".
 
 UNINSTALL
   Wait until everyone is back (a survivor still away stays outside the base; the

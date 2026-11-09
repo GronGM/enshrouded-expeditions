@@ -32,7 +32,7 @@ put back when they return.
 1. [shroudlink](https://www.nexusmods.com/enshrouded/mods/278): in singleplayer
    `shroudlink-singleplayer.zip` into the game folder; on a server the core, and the addon
    (`dinput8.dll`) for players.
-2. `expeditions-1.0.0.zip` into the game folder (or the server's folder):
+2. `expeditions-1.1.0.zip` into the game folder (or the server's folder):
    `shroudlink_mods\expeditions.dll`.
 3. With [The Worst Map Mod](https://www.nexusmods.com/enshrouded/mods/220) or another
    Greeneye Loader mod: also `expeditions-mapmod-compat-1.0.0.zip`
@@ -48,7 +48,7 @@ Player guides: [English](dist/README-expeditions.txt) · [Русский](dist/R
 ### With EMF instead of shroudlink
 
 The same mod is also built for [EMF](https://www.nexusmods.com/enshrouded/mods/246) (Enshrouded
-Modding Framework, 0.5.0 or newer): `expeditions-emf-1.0.0.zip` into the game folder
+Modding Framework, 0.5.0 or newer; with UAC off see "If EMF's console does not open" in the guide): `expeditions-emf-1.1.0.zip` into the game folder
 (`emf\mods\expeditions\`). **F10** (or `expeditions` in EMF's console) opens the window; the key is
 in EMF's Mods tab. It runs in the game that runs the world (singleplayer or a world you host). Keep
 only one of the two versions installed. Guides: [English](dist/README-expeditions-emf.txt) ·

@@ -15,5 +15,6 @@ cp build/emf/expeditions.dll dist/emf/mod.json "$OUT/emf/emf/mods/expeditions/"
 cp dist/README-expeditions-emf.txt dist/README-expeditions-emf-ru.txt "$OUT/emf/"
 (cd "$OUT/mod" && zip -qr "../expeditions-$VERSION.zip" .)
 (cd "$OUT/emf" && zip -qr "../expeditions-emf-$VERSION.zip" .)
-(cd "$OUT/compat" && zip -qr "../expeditions-mapmod-compat-$VERSION.zip" .)
+COMPAT_VERSION=$(sed -n 's/.*"version": *"\(.*\)".*/\1/p' compat/shroudlink-first/mod.json)
+(cd "$OUT/compat" && zip -qr "../expeditions-mapmod-compat-$COMPAT_VERSION.zip" .)
 ls -l "$OUT"/*.zip

@@ -1171,7 +1171,8 @@ void Mod::step(void* ctx) {
         uint32_t left = 0;
         for (const auto& p : x.pending) left += p.second;
         if (left > 0) {
-            if (!x.told_full) {
+            // no chest in sight (not loaded yet, right after a world loads): the loot waits without a word
+            if (!x.told_full && !chests.empty()) {
                 notify_all(ctx, who(x.workshop, x.who) + L(" вернулся, но в сундуках нет места для ", " is back, but the chests have no room for ") + std::to_string(left) + " " + items_word(left) +
                                     L(". Освободите место — добыча подождёт.", ". Make room, the loot will wait."));
                 x.told_full = true;

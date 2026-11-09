@@ -16,7 +16,7 @@
 namespace exped {
 
 constexpr const char* kId = "expeditions";
-constexpr const char* kVersion = "1.0.0";
+constexpr const char* kVersion = "1.1.0";
 
 struct LootEntry {
     uint32_t item = 0;

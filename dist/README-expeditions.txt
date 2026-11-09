@@ -1,4 +1,4 @@
-Expeditions (a shroudlink mod for Enshrouded) 1.0.0
+Expeditions (a shroudlink mod for Enshrouded) 1.1.0
 ====================================================
 Send a survivor of your base on an expedition. They come back with loot of their
 trade: the Blacksmith brings ore, stone and gems, the Carpenter wood, resin and fibre,

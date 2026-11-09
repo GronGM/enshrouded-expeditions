@@ -1,9 +1,13 @@
 # Changelog
 
-## Unreleased
+## 1.1.0
 - A build for EMF (Enshrouded Modding Framework 0.5.0+): `expeditions-emf-<version>.zip`, the window on F10
   (EMF's mod windows), the panel as EMF HUD lines, items into chests through EMF's inventory transactions
   (what does not fit after all drops at the player's feet), readable item names in English and Russian.
+- A chest that has not loaded yet (right after a world loads) no longer makes the mod say the chests are full:
+  the loot waits quietly until the chests are there.
+- EMF build: when EMF cannot draw windows (the game runs as administrator, for example with UAC off), the log says
+  so once and why; the guide has the one-line fix.
 
 ## 1.0.0
 First release.

@@ -472,6 +472,28 @@ static void test_host() {
     fake::step_requests();
     CHECK(!fake::dropped.empty() && fake::dropped[0].second == 3);
 
+    // right after loading: a chest without its slots yet is no chest, and nobody is told "no room"
+    {
+        fake::click("b:back");
+        fake::click("l:survivors:0");
+        fake::click("b:go");
+        fake::step_requests();
+        auto saved = fake::comps[{3000, 0xb19528a9}];
+        fake::comps.erase({3000, 0xb19528a9});
+        exped::emfhost::mod_for_tests().advance(60 * 60);
+        fake::puts.clear();
+        fake::tick(6);
+        CHECK(fake::puts.empty());
+        CHECK(exped::emfhost::mod_for_tests().expeditions().size() == 1 && !exped::emfhost::mod_for_tests().expeditions()[0].told_full);
+        fake::comps[{3000, 0xb19528a9}] = saved;  // the chest is there now: delivered
+        fake::tick(6);
+        CHECK(!fake::puts.empty());
+        fake::step_requests();
+        fake::tick(6);
+        fake::tick(6);
+        CHECK(exped::emfhost::mod_for_tests().expeditions().empty());
+    }
+
     // a full chest: nothing is asked for, the loot waits
     fake::tick(6);
     fake::tick(6);
