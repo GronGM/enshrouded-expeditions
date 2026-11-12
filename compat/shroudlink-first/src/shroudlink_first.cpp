@@ -1,5 +1,6 @@
 // shroudlink first: a Greeneye Loader mod that holds the loader's other mods back until the
-// shroudlink addon (dinput8.dll) has hooked the game's play-state UI function.
+// shroudlink addon (dinput8.dll, or a ShroudForge native DLL mod) has hooked the game's
+// play-state UI function.
 //
 // Why: the addon hooks doPlayStateUi from its own thread at startup (retour: a 5 byte jump,
 // its trampoline runs the first 11 bytes and returns to +11). The Worst Map Mod hooks the same
@@ -238,7 +239,30 @@ uint64_t ProcessStartUnix()
     return (t.QuadPart - 116444736000000000ULL) / 10000000ULL;
 }
 
-// The addon is in this game: its dinput8.dll was loaded from the game folder, next to its core.
+// Does this file hold the addon? (it exports shroudlink_shutdown; the name is in the file as text)
+bool IsAddonFile(const wchar_t* path)
+{
+    HANDLE f = CreateFileW(path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_DELETE, nullptr, OPEN_EXISTING, 0, nullptr);
+    if (f == INVALID_HANDLE_VALUE) return false;
+    static const char kName[] = "shroudlink_shutdown";
+    const size_t nameLen = sizeof kName - 1;
+    bool found = false;
+    LARGE_INTEGER size;
+    if (GetFileSizeEx(f, &size) && size.QuadPart > 0 && size.QuadPart < 64ll * 1024 * 1024) {
+        if (char* data = static_cast<char*>(HeapAlloc(GetProcessHeap(), 0, static_cast<SIZE_T>(size.QuadPart)))) {
+            DWORD got = 0;
+            if (ReadFile(f, data, static_cast<DWORD>(size.QuadPart), &got, nullptr) && got >= nameLen) {
+                for (size_t i = 0; i + nameLen <= got && !found; ++i)
+                    found = data[i] == kName[0] && std::memcmp(data + i, kName, nameLen) == 0;
+            }
+            HeapFree(GetProcessHeap(), 0, data);
+        }
+    }
+    CloseHandle(f);
+    return found;
+}
+
+// The addon the usual way: it is the dinput8.dll of the game folder, next to its core.
 bool AddonPresent(const wchar_t* gameDir)
 {
     HMODULE m = GetModuleHandleW(L"dinput8.dll");
@@ -249,8 +273,61 @@ bool AddonPresent(const wchar_t* gameDir)
     size_t dirLen = wcslen(gameDir);
     if (_wcsnicmp(path, gameDir, dirLen) != 0 || wcschr(path + dirLen, L'\\')) return false;
     wchar_t core[MAX_PATH];
+    if (!GetProcAddress(m, "shroudlink_shutdown")) {
+        // not the addon itself: a loader that chains it (EMF) counts, ShroudForge's does not,
+        // it starts the addon much later (see AddonUnderShroudForge)
+        PathIn(core, gameDir, L"shroudforge\\shroudforge-runtime.dll");
+        if (core[0] && FileExists(core)) return false;
+    }
     PathIn(core, gameDir, L"shroudlink_core.dll");
     return FileExists(core);
+}
+
+// "Dll=" of the [Plugin] section of a ShroudForge native-plugin.ini, when it is not switched off.
+bool PluginDll(const wchar_t* ini, wchar_t* out, size_t outLen)
+{
+    wchar_t enabled[16] = L"";
+    GetPrivateProfileStringW(L"Plugin", L"Enabled", L"1", enabled, 16, ini);
+    if (!_wcsicmp(enabled, L"0") || !_wcsicmp(enabled, L"false") || !_wcsicmp(enabled, L"no") || !_wcsicmp(enabled, L"off"))
+        return false;
+    DWORD n = GetPrivateProfileStringW(L"Plugin", L"Dll", L"", out, static_cast<DWORD>(outLen), ini);
+    if (!n || n >= outLen - 1) return false;
+    for (wchar_t* c = out; *c; ++c) {
+        if (*c == L'/') *c = L'\\';
+    }
+    return !wcsstr(out, L"..") && !wcschr(out, L':') && out[0] != L'\\';
+}
+
+// With ShroudForge the game folder's dinput8.dll is ShroudForge's, and the addon is one of its
+// native DLL mods (mods\<folder>\native-plugin.ini). ShroudForge starts those only after this
+// loader has started its mods, so the addon is found here and started first; ShroudForge then
+// finds it already loaded. Returns its path in out, or false.
+bool AddonUnderShroudForge(const wchar_t* gameDir, wchar_t* out)
+{
+    wchar_t path[MAX_PATH];
+    PathIn(path, gameDir, L"shroudforge\\shroudforge-runtime.dll");
+    if (!path[0] || !FileExists(path)) return false;
+    PathIn(path, gameDir, L"shroudlink_core.dll");
+    if (!path[0] || !FileExists(path)) return false;
+    wchar_t pattern[MAX_PATH];
+    PathIn(pattern, gameDir, L"mods\\*");
+    if (!pattern[0]) return false;
+    WIN32_FIND_DATAW fd;
+    HANDLE h = FindFirstFileW(pattern, &fd);
+    if (h == INVALID_HANDLE_VALUE) return false;
+    bool found = false;
+    do {
+        if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) || fd.cFileName[0] == L'.') continue;
+        wchar_t ini[MAX_PATH], dll[MAX_PATH], full[MAX_PATH];
+        if (swprintf(ini, MAX_PATH, L"%lsmods\\%ls\\native-plugin.ini", gameDir, fd.cFileName) < 0) continue;
+        if (!FileExists(ini) || !PluginDll(ini, dll, MAX_PATH)) continue;
+        if (swprintf(full, MAX_PATH, L"%lsmods\\%ls\\%ls", gameDir, fd.cFileName, dll) < 0) continue;
+        if (!FileExists(full) || !IsAddonFile(full)) continue;
+        wcscpy(out, full);
+        found = true;
+    } while (!found && FindNextFileW(h, &fd));
+    FindClose(h);
+    return found;
 }
 
 // Later, once every mod has started: is the play-state UI hook chain sound?
@@ -284,9 +361,21 @@ extern "C" __declspec(dllexport) bool GreeneyeModStart(const GreeneyeHost* host)
     DeleteFileW(g_ownLog);
 
     if (!AddonPresent(host->gameDir)) {
-        Log("shroudlink is not installed in this game folder; nothing to wait for");
-        LogFile("shroudlink is not installed in this game folder; nothing to wait for");
-        return true;
+        wchar_t addon[MAX_PATH];
+        if (!AddonUnderShroudForge(host->gameDir, addon)) {
+            Log("shroudlink is not installed in this game folder; nothing to wait for");
+            LogFile("shroudlink is not installed in this game folder; nothing to wait for");
+            return true;
+        }
+        // LoadLibrary: the addon starts its own thread; a later load by ShroudForge finds it loaded
+        HMODULE m = LoadLibraryExW(addon, nullptr, LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR | LOAD_LIBRARY_SEARCH_DEFAULT_DIRS);
+        if (!m) {
+            Log("shroudlink is a ShroudForge mod here (%ls) but did not load (error %lu); not waiting", addon, GetLastError());
+            LogFile("shroudlink is a ShroudForge mod here (%ls) but did not load (error %lu); not waiting", addon, GetLastError());
+            return true;
+        }
+        Log("shroudlink is a ShroudForge mod here: started it first (%ls)", addon);
+        LogFile("shroudlink is a ShroudForge mod here: started it first (%ls)", addon);
     }
 
     const ULONGLONG t0 = GetTickCount64();
