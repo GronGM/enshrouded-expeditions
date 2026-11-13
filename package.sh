@@ -1,5 +1,6 @@
 #!/bin/bash
-# The release zips: the mod (shroudlink), the mod for EMF, and the optional Greeneye Loader mod for map mod players.
+# The release zips: the mod (shroudlink), the mod for EMF, the optional Greeneye Loader mod for map mod players,
+# and the folder that runs shroudlink inside ShroudForge.
 set -e
 cd "$(dirname "$0")"
 VERSION=$(sed -n 's/.*kVersion = "\(.*\)";/\1/p' src/expeditions.h)
@@ -19,4 +20,10 @@ COMPAT_VERSION=$(sed -n 's/.*"version": *"\(.*\)".*/\1/p' compat/shroudlink-firs
 (cd "$OUT/compat" && zip -qr "../expeditions-mapmod-compat-$COMPAT_VERSION.zip" .)
 # the same Greeneye Loader mod as a Nexus mod of its own
 (cd "$OUT/compat" && zip -qr "../shroudlink-first-$COMPAT_VERSION.zip" .)
+# shroudlink inside ShroudForge: mods\shroudlink\native-plugin.ini and the guide (CRLF for Notepad)
+SF_VERSION=$(sed -n 's/^shroudlink inside ShroudForge \(.*\)$/\1/p' dist/shroudforge/README-shroudlink-in-shroudforge.txt)
+mkdir -p "$OUT/shroudforge/mods/shroudlink"
+sed 's/$/\r/' dist/shroudforge/native-plugin.ini > "$OUT/shroudforge/mods/shroudlink/native-plugin.ini"
+sed 's/$/\r/' dist/shroudforge/README-shroudlink-in-shroudforge.txt > "$OUT/shroudforge/README-shroudlink-in-shroudforge.txt"
+(cd "$OUT/shroudforge" && zip -qr "../shroudlink-in-shroudforge-$SF_VERSION.zip" .)
 ls -l "$OUT"/*.zip

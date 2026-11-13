@@ -1,4 +1,4 @@
-shroudlink first (a Greeneye Loader mod) 1.0.0
+shroudlink first (a Greeneye Loader mod) 1.1.0
 =============================================
 For players who use shroudlink together with mods that run on the Greeneye Loader:
 GreeneyeDS's mods such as The Worst Map Mod, Town Portals or Hollow Halls Progression.
@@ -19,6 +19,13 @@ greeneye\0-shroudlink-first\shroudlink-first.log (a check 20 s after start:
 "hook chain is sound" means all is well).
 Uninstall: delete greeneye\0-shroudlink-first.
 
+With ShroudForge (https://www.nexusmods.com/enshrouded/mods/147): shroudlink's dinput8.dll
+then lives in mods\shroudlink\ (a ShroudForge native DLL mod) and this mod starts it first.
+Move ShroudForge's dbghelp.dll out of the game folder (ShroudForge also starts through its
+dinput8.dll): with it the Greeneye Loader starts its mods too early for anything to wait,
+and shroudlink's MODS tab does not appear. The log then says "not waiting: started inside
+the Windows loader". The guide in shroudlink-in-shroudforge-*.zip has every step.
+
 ----
 shroudlink first (мод для загрузчика Greeneye)
 Для тех, у кого shroudlink стоит вместе с модами на загрузчике Greeneye: моды GreeneyeDS,
@@ -30,6 +37,10 @@ shroudlink и эти моды перехватывают одну и ту же �
 Установка: папку greeneye из архива скопировать в папку игры (рядом с enshrouded.exe),
 получится greeneye\0-shroudlink-first\; имя папки не менять.
 Удаление: удалите папку greeneye\0-shroudlink-first.
+С ShroudForge: dinput8.dll от shroudlink лежит в mods\shroudlink\, этот мод запускает его
+первым. Уберите dbghelp.dll от ShroudForge из папки игры (ShroudForge запускается и через
+свой dinput8.dll), иначе загрузчик Greeneye стартует слишком рано и вкладки MODS не будет.
+Все шаги: в архиве shroudlink-in-shroudforge-*.zip.
 
 Source / исходники (MIT): https://github.com/GronGM/enshrouded-expeditions
 (folder compat/shroudlink-first)

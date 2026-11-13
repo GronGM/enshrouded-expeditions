@@ -15,6 +15,8 @@
   С модом карты The Worst Map Mod (Greeneye Loader) поставьте и дополнительный файл
   «shroudlink first» (greeneye\0-shroudlink-first), иначе игра может упасть при
   входе в мир.
+  С ShroudForge: shroudlink работает как его мод, см. дополнительный файл
+  «shroudlink inside ShroudForge» (README-shroudlink-in-shroudforge.txt).
 
 КАК ПОЛЬЗОВАТЬСЯ
 1. Встаньте на базе рядом с выжившим.

@@ -1,5 +1,13 @@
 # Changelog
 
+## shroudlink first 1.1.0, shroudlink inside ShroudForge 1.0.0
+- `shroudlink-in-shroudforge-1.0.0.zip`: runs shroudlink (and so this mod) inside ShroudForge, as one of
+  its native DLL mods (`mods\shroudlink\native-plugin.ini`). Tested in singleplayer with ShroudForge 1.7.9.
+- shroudlink first 1.1.0 (the Greeneye Loader mod): finds shroudlink installed as a ShroudForge mod and
+  starts it before the other Greeneye mods. When the loader starts its mods inside the Windows loader
+  (ShroudForge's `dbghelp.dll` makes it load late), it no longer waits 30 s for a hook that cannot come,
+  and its log says to move that `dbghelp.dll` out of the game folder.
+
 ## 1.1.0
 - A build for EMF (Enshrouded Modding Framework 0.5.0+): `expeditions-emf-<version>.zip`, the window on F10
   (EMF's mod windows), the panel as EMF HUD lines, items into chests through EMF's inventory transactions

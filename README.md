@@ -35,7 +35,8 @@ put back when they return.
 2. `expeditions-1.1.0.zip` into the game folder (or the server's folder):
    `shroudlink_mods\expeditions.dll`.
 3. With [The Worst Map Mod](https://www.nexusmods.com/enshrouded/mods/220) or another
-   Greeneye Loader mod: also `expeditions-mapmod-compat-1.0.0.zip`
+   Greeneye Loader mod: also `expeditions-mapmod-compat-1.1.0.zip`, also on Nexus as
+   [shroudlink first](https://www.nexusmods.com/enshrouded/mods/321)
    (`greeneye\0-shroudlink-first`). Without it the game can crash on entering the world,
    see [compat/shroudlink-first](compat/shroudlink-first/src/shroudlink_first.cpp).
 4. In the game: **K** (MODS) > **Expeditions**.
@@ -44,6 +45,18 @@ Made and tested in singleplayer. On a dedicated server it runs like any shroudli
 (each player needs the addon to see the window); that setup is not tested yet.
 
 Player guides: [English](dist/README-expeditions.txt) · [Русский](dist/README-expeditions-ru.txt).
+
+### With ShroudForge
+
+[ShroudForge](https://www.nexusmods.com/enshrouded/mods/147) and shroudlink both start
+through the game folder's `dinput8.dll`. ShroudForge can load shroudlink's as one of its
+native DLL mods: `shroudlink-in-shroudforge-1.0.0.zip` gives `mods\shroudlink\native-plugin.ini`,
+shroudlink's `dinput8.dll` goes next to it, `shroudlink_core.dll` and `shroudlink_mods\` stay
+in the game folder. With Greeneye Loader mods, move ShroudForge's `dbghelp.dll` out of the
+game folder and use shroudlink first 1.1.0 (ShroudForge's `dbghelp.dll` makes the Greeneye
+Loader start its mods inside the Windows loader, before shroudlink can hook the game's UI).
+Guide: [README-shroudlink-in-shroudforge.txt](dist/shroudforge/README-shroudlink-in-shroudforge.txt).
+Tested in singleplayer with ShroudForge 1.7.9.
 
 ### With EMF instead of shroudlink
 

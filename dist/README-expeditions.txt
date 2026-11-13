@@ -15,6 +15,8 @@ WHAT YOU NEED
   With The Worst Map Mod (Greeneye Loader) also install the optional file
   "shroudlink first" (greeneye\0-shroudlink-first), or the game may crash when you
   enter the world.
+  With ShroudForge: shroudlink runs as one of its native DLL mods, see the optional
+  file "shroudlink inside ShroudForge" (README-shroudlink-in-shroudforge.txt).
 
 HOW TO USE
 1. Stand at your base near a survivor.
