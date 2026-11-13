@@ -25,13 +25,16 @@ Send a survivor of your base on an expedition. They walk out past the edge of th
 [list=1]
 [*]Install shroudlink.
 [*]Unpack [i]expeditions-1.1.0.zip[/i] into the game folder (or the server's folder): [i]shroudlink_mods\expeditions.dll[/i].
-[*]Playing with [url=https://www.nexusmods.com/enshrouded/mods/220]The Worst Map Mod[/url] (or another Greeneye Loader mod)? Also unpack the optional file [i]expeditions-mapmod-compat[/i] ([i]greeneye\0-shroudlink-first[/i]). Without it the game can crash when you enter the world, because both mods hook the same game function at start.
+[*]Playing with [url=https://www.nexusmods.com/enshrouded/mods/220]The Worst Map Mod[/url] (or another Greeneye Loader mod)? Also install the optional file [i]Greeneye Loader compatibility[/i] ([i]greeneye\0-shroudlink-first[/i]; also a mod of its own: [url=https://www.nexusmods.com/enshrouded/mods/321]shroudlink first[/url]). Without it the game can crash when you enter the world, because both mods hook the same game function at start.
 [*]In the game: [b]K[/b] (the MODS tab) > [b]Expeditions[/b].
 [/list]
 
 [size=4][b]EMF version[/b][/size]
 Use EMF (Enshrouded Modding Framework) instead of shroudlink? Download [i]Expeditions for EMF[/i] and unpack it into the game folder ([i]emf\mods\expeditions[/i]). It needs [url=https://www.nexusmods.com/enshrouded/mods/246]EMF[/url] 0.5.0 or newer and works in singleplayer or in a world you host. Press [b]F10[/b] (or type expeditions in EMF's console). Install only one of the two versions.
 If EMF's console does not open at all and UAC is off in Windows, see the README in the zip: one registry line fixes it.
+
+[size=4][b]With ShroudForge[/b][/size]
+Playing with [url=https://www.nexusmods.com/enshrouded/mods/147]ShroudForge[/url]? shroudlink runs inside it as one of its native DLL mods. Unpack the optional file [i]shroudlink inside ShroudForge[/i] into the game folder ([i]mods\shroudlink\native-plugin.ini[/i]) and put shroudlink's [i]dinput8.dll[/i] next to it (not into the game folder: that one is ShroudForge's). [i]shroudlink_core.dll[/i] and [i]shroudlink_mods[/i] stay in the game folder as usual. With Greeneye Loader mods, also move ShroudForge's [i]dbghelp.dll[/i] out of the game folder and use shroudlink first 1.1.0, or the MODS tab does not appear. Every step is in the guide inside the zip. Tested in singleplayer with ShroudForge 1.7.9.
 
 [size=4][b]How to use[/b][/size]
 Stand at your base near a survivor, open K > Expeditions, pick the survivor, a route, a duration and rations, and click Send. When the time is up and you are at the base, the survivor walks home and the loot goes into the chests (chests that already hold the item first). Click an expedition to call the survivor back early, or an entry under "Recently back" to see what they brought.
@@ -50,3 +53,4 @@ Wait until everyone is back (a survivor still away stays outside the base; the S
 Отправьте выжившего с базы в поход: он уйдёт за пределы базы и вернётся с добычей своего ремесла прямо в сундуки базы. Маршруты по регионам (открываются, когда вы там побываете), припасы из сундуков, опыт и уровни, события в пути, повтор похода, панель на экране и отчёты. Интерфейс на русском и английском.
 Нужен [url=https://www.nexusmods.com/enshrouded/mods/278]shroudlink[/url]. С модом карты The Worst Map Mod поставьте и дополнительный файл [i]expeditions-mapmod-compat[/i], иначе игра может упасть при входе в мир. В игре: K > Экспедиции. Подробности — в README-expeditions-ru.txt внутри архива.
 Есть версия для EMF: файл [i]Expeditions for EMF[/i], распаковать в папку игры, окно на [b]F10[/b]. Ставьте только одну из двух версий.
+С ShroudForge: дополнительный файл [i]shroudlink inside ShroudForge[/i]; dinput8.dll от shroudlink кладётся в [i]mods\shroudlink[/i], а не в папку игры. С модами Greeneye уберите [i]dbghelp.dll[/i] от ShroudForge из папки игры. Все шаги в архиве.

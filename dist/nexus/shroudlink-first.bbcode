@@ -21,6 +21,10 @@ To check: about 20 s after the start, [i]greeneye\0-shroudlink-first\shroudlink-
 [size=4][b]Uninstall[/b][/size]
 Delete the folder [i]greeneye\0-shroudlink-first[/i].
 
+[size=4][b]With ShroudForge[/b][/size]
+With [url=https://www.nexusmods.com/enshrouded/mods/147]ShroudForge[/url], shroudlink runs inside it as one of its native DLL mods: the optional file [i]shroudlink inside ShroudForge[/i] has the folder ([i]mods\shroudlink\native-plugin.ini[/i]) and every step. shroudlink first 1.1.0 then starts shroudlink before the other Greeneye mods.
+Also move ShroudForge's [i]dbghelp.dll[/i] out of the game folder (ShroudForge still starts through its dinput8.dll). With it the Greeneye Loader starts its mods inside the Windows loader, before shroudlink can do anything, and shroudlink's MODS tab does not appear; the log of this mod then says "not waiting: started inside the Windows loader". Tested in singleplayer with ShroudForge 1.7.9.
+
 [size=4][b]Notes[/b][/size]
 [list]
 [*]It is the same file as the optional "mapmod compat" file of [url=https://www.nexusmods.com/enshrouded/mods/300]Expeditions[/url]. If you installed that one, you already have this mod.
@@ -31,3 +35,4 @@ Delete the folder [i]greeneye\0-shroudlink-first[/i].
 [size=4][b]Русский[/b][/size]
 Игра падает при входе в мир, когда вместе стоят [url=https://www.nexusmods.com/enshrouded/mods/278]shroudlink[/url] и моды на загрузчике Greeneye (The Worst Map Mod, Town Portals, Hollow Halls Progression и другие моды GreeneyeDS)? Этот мод это исправляет. При запуске shroudlink и моды Greeneye одновременно перехватывают одну и ту же функцию игры, и если мод Greeneye влезает посреди перехвата shroudlink, игра падает. Этот мод запускается первым и держит остальные моды Greeneye, пока shroudlink не закончит (обычно меньше секунды, не дольше 30 с).
 Установка: папку [i]greeneye[/i] из архива скопировать в папку игры (рядом с enshrouded.exe), получится [i]greeneye\0-shroudlink-first[/i]; имя папки не менять. Удаление: удалить эту папку.
+С ShroudForge: shroudlink работает внутри него как его мод (дополнительный файл [i]shroudlink inside ShroudForge[/i], все шаги внутри). Уберите [i]dbghelp.dll[/i] от ShroudForge из папки игры: с ним загрузчик Greeneye стартует слишком рано, и вкладки MODS не будет.
