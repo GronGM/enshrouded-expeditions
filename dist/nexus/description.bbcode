@@ -13,6 +13,7 @@ Send a survivor of your base on an expedition. They walk out past the edge of th
 [*][b]Repeat[/b]: the survivor delivers the loot and sets out again on the same route.
 [*][b]A panel on the screen[/b] with everyone away and a [b]report[/b] of every trip with the items.
 [*][b]Everything can be switched off[/b] in the game; durations, routes, loot and dangers are in expeditions_config.json.
+[*][b]On a server only the admin changes the settings[/b]: by default the in-game settings are for the player who runs the world; on a dedicated server they are changed in expeditions_config.json ([i]settings_in_game[/i]: host, everyone or nobody).[/*]
 [*][b]English and Russian[/b], as Windows, or chosen in the settings.
 [/list]
 
@@ -24,7 +25,7 @@ Send a survivor of your base on an expedition. They walk out past the edge of th
 [size=4][b]Install[/b][/size]
 [list=1]
 [*]Install shroudlink.
-[*]Unpack [i]expeditions-1.1.0.zip[/i] into the game folder (or the server's folder): [i]shroudlink_mods\expeditions.dll[/i].
+[*]Unpack [i]expeditions-1.2.0.zip[/i] into the game folder (or the server's folder): [i]shroudlink_mods\expeditions.dll[/i].
 [*]Playing with [url=https://www.nexusmods.com/enshrouded/mods/220]The Worst Map Mod[/url] (or another Greeneye Loader mod)? Also install the optional file [i]Greeneye Loader compatibility[/i] ([i]greeneye\0-shroudlink-first[/i]; also a mod of its own: [url=https://www.nexusmods.com/enshrouded/mods/321]shroudlink first[/url]). Without it the game can crash when you enter the world, because both mods hook the same game function at start.
 [*]In the game: [b]K[/b] (the MODS tab) > [b]Expeditions[/b].
 [/list]
@@ -54,3 +55,4 @@ Wait until everyone is back (a survivor still away stays outside the base; the S
 Нужен [url=https://www.nexusmods.com/enshrouded/mods/278]shroudlink[/url]. С модом карты The Worst Map Mod поставьте и дополнительный файл [i]expeditions-mapmod-compat[/i], иначе игра может упасть при входе в мир. В игре: K > Экспедиции. Подробности — в README-expeditions-ru.txt внутри архива.
 Есть версия для EMF: файл [i]Expeditions for EMF[/i], распаковать в папку игры, окно на [b]F10[/b]. Ставьте только одну из двух версий.
 С ShroudForge: дополнительный файл [i]shroudlink inside ShroudForge[/i]; dinput8.dll от shroudlink кладётся в [i]mods\shroudlink[/i], а не в папку игры. С модами Greeneye уберите [i]dbghelp.dll[/i] от ShroudForge из папки игры. Все шаги в архиве.
+На сервере настройки в игре меняет только тот, чья игра держит мир; на выделенном сервере — администратор в файле expeditions_config.json ([i]settings_in_game[/i]).
