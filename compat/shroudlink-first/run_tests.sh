@@ -10,7 +10,7 @@ python3 -m ziglang c++ -target x86_64-windows-gnu -O1 -shared -o $T/dinput8.dll 
 cp build/shroudlink-first.dll $T/greeneye/0-shroudlink-first/
 echo core > $T/shroudlink_core.dll
 export WINEDEBUG=-all WINEDLLOVERRIDES="dinput8=n"
-for mode in normal chain disabled child loaderfirst broken blind nolog logfirst nodinput; do
+for mode in normal chain disabled child loaderfirst broken blind nolog logfirst nodinput loaderlock; do
   echo "=== $mode"
   timeout 60 "${WINE:-wine64}" $T/harness.exe $mode 2>&1 | grep -v "^$" | tr -d '\r'
 done

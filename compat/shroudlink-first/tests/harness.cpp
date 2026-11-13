@@ -131,9 +131,18 @@ int wmain(int argc, wchar_t** argv)
     }
     auto start = reinterpret_cast<bool (*)(const GreeneyeHost*)>(GetProcAddress(mod, "GreeneyeModStart"));
     GreeneyeHost host{sizeof(GreeneyeHost), 2, 1, modDir.c_str(), g_dir.c_str(), HostLog};
+    // "loaderlock": the loader calls the mod from inside a DllMain (a late load)
+    RTL_CRITICAL_SECTION* loaderLock = nullptr;
+    if (mode == L"loaderlock") {
+        const auto* peb = reinterpret_cast<const uint8_t*>(__readgsqword(0x60));
+        loaderLock = *reinterpret_cast<RTL_CRITICAL_SECTION* const*>(peb + 0x110);
+        if (loaderLock) EnterCriticalSection(loaderLock);
+        printf("holding the loader lock: %s\n", loaderLock ? "yes" : "no (not found)");
+    }
     const ULONGLONG before = GetTickCount64();
     const bool ok = start(&host);
     const ULONGLONG took = GetTickCount64() - before;
+    if (loaderLock) LeaveCriticalSection(loaderLock);
     printf("RESULT mode=%ls ok=%d took=%llu first=%02X\n", mode.c_str(), ok, took, Fn()[0]);
 
     if (mode == L"normal" || mode == L"chain") {

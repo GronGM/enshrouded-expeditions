@@ -239,6 +239,21 @@ uint64_t ProcessStartUnix()
     return (t.QuadPart - 116444736000000000ULL) / 10000000ULL;
 }
 
+// Is this thread inside the Windows loader (a DllMain)? Then no new thread can start before we
+// return, the addon's included: waiting for its hook is pointless. The Greeneye Loader starts its
+// mods there when it is loaded late, as with ShroudForge's dbghelp.dll proxy, which loads the
+// system dbghelp.dll (and with it dbgcore.dll) from its own DllMain.
+bool InsideLoaderLock()
+{
+#if defined(_M_X64) || defined(__x86_64__)
+    const auto* peb = reinterpret_cast<const uint8_t*>(__readgsqword(0x60));
+    const auto* lock = *reinterpret_cast<RTL_CRITICAL_SECTION* const*>(peb + 0x110);
+    return lock && reinterpret_cast<uintptr_t>(lock->OwningThread) == GetCurrentThreadId();
+#else
+    return false;
+#endif
+}
+
 // Does this file hold the addon? (it exports shroudlink_shutdown; the name is in the file as text)
 bool IsAddonFile(const wchar_t* path)
 {
@@ -376,6 +391,19 @@ extern "C" __declspec(dllexport) bool GreeneyeModStart(const GreeneyeHost* host)
         }
         Log("shroudlink is a ShroudForge mod here: started it first (%ls)", addon);
         LogFile("shroudlink is a ShroudForge mod here: started it first (%ls)", addon);
+    }
+
+    if (InsideLoaderLock()) {
+        g_fn = FindPlayStateUi();
+        Log("the loader started its mods inside the Windows loader (a late load): shroudlink cannot start "
+            "before the next mods, so not waiting. With ShroudForge, move its dbghelp.dll out of the game folder "
+            "(its dinput8.dll starts it too); the loader then starts its mods at the game's entry point");
+        LogFile("not waiting: started inside the Windows loader (late load, e.g. ShroudForge's dbghelp.dll); "
+                "move ShroudForge's dbghelp.dll out of the game folder");
+        if (g_fn) {
+            if (HANDLE t = CreateThread(nullptr, 0, CheckLater, nullptr, 0, nullptr)) CloseHandle(t);
+        }
+        return true;
     }
 
     const ULONGLONG t0 = GetTickCount64();
