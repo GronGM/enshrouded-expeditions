@@ -796,8 +796,114 @@ static void test_english() {
     lang::set("ru");
 }
 
+
+// Who may change the settings in the game: the host (whose addon shares the process and keeps
+// its session in SHROUDLINK_CLIENT_SESSION), everyone, or nobody.
+static void test_settings_access() {
+    std::printf("settings access\n");
+    clean_dir();
+    features(false, false, false, false);
+    scene();
+    void* ctx = reinterpret_cast<void*>(1);
+    {
+        Mod m;
+        m.set_clock(fake_clock);
+        m.load(&kApi, kDir);
+        CHECK(m.config().settings_in_game == Config::Access::Host);
+        CHECK(m.host_client() == 5 && m.may_change_settings(5) && !m.may_change_settings(7));
+        // another player: the window shows the values without the controls, clicks change nothing
+        m.join(&kApi, ctx, 7);
+        m.message(&kApi, ctx, 7, ui("main", "settings", "click"));
+        std::string open = last_open().dump();
+        CHECK(open.find("mult_up") == std::string::npos && open.find("\"toggle\"") == std::string::npos);
+        CHECK(open.find("только тот, кто запустил мир") != std::string::npos && open.find("×1") != std::string::npos);
+        CHECK(open.find("\"reload\"") != std::string::npos);
+        m.message(&kApi, ctx, 7, ui("settings", "mult_up", "click"));
+        m.message(&kApi, ctx, 7, ui("settings", "mult_up", "click"));
+        CHECK(m.config().multiplier == 1);
+        m.message(&kApi, ctx, 7, ui_change("settings", "walk_away", false));
+        CHECK(m.config().walk_away);
+        m.message(&kApi, ctx, 7, ui("settings", "language", "click", 2));
+        CHECK(m.config().language == "auto");
+        std::string text;
+        platform::read_file(kDir + "expeditions_config.json", text);
+        CHECK(json::parse(text)["loot_multiplier"].as_number() == 1);
+        // the host can
+        m.join(&kApi, ctx, 5);
+        m.message(&kApi, ctx, 5, ui("main", "settings", "click"));
+        CHECK(last_open().dump().find("mult_up") != std::string::npos);
+        m.message(&kApi, ctx, 5, ui("settings", "mult_up", "click"));
+        CHECK(m.config().multiplier == 1.5);
+        platform::read_file(kDir + "expeditions_config.json", text);
+        CHECK(json::parse(text)["settings_in_game"].as_string() == "host");
+    }
+    {
+        // a dedicated server: no addon in the process, so nobody changes them in the game
+        unsetenv("SHROUDLINK_CLIENT_SESSION");
+        Mod m;
+        m.set_clock(fake_clock);
+        m.load(&kApi, kDir);
+        CHECK(m.host_client() == 0 && !m.may_change_settings(5));
+        m.join(&kApi, ctx, 5);
+        m.message(&kApi, ctx, 5, ui("main", "settings", "click"));
+        CHECK(last_open().dump().find("администратор сервера") != std::string::npos);
+        m.message(&kApi, ctx, 5, ui("settings", "mult_up", "click"));
+        CHECK(m.config().multiplier == 1.5);
+        // the admin edits the file and reloads it (anyone may press reload: it applies the file)
+        std::string text;
+        platform::read_file(kDir + "expeditions_config.json", text);
+        json::Value v = json::parse(text);
+        v.set("loot_multiplier", 3.0);
+        platform::write_file_atomic(kDir + "expeditions_config.json", v.dump(true));
+        m.message(&kApi, ctx, 5, ui("settings", "reload", "click"));
+        CHECK(m.config().multiplier == 3);
+        // everyone
+        v.set("settings_in_game", "everyone");
+        platform::write_file_atomic(kDir + "expeditions_config.json", v.dump(true));
+        m.message(&kApi, ctx, 5, ui("settings", "reload", "click"));
+        CHECK(m.may_change_settings(5) && m.may_change_settings(7));
+        m.message(&kApi, ctx, 5, ui("settings", "mult_down", "click"));
+        CHECK(m.config().multiplier == 2);
+        platform::read_file(kDir + "expeditions_config.json", text);
+        CHECK(json::parse(text)["settings_in_game"].as_string() == "everyone");
+        setenv("SHROUDLINK_CLIENT_SESSION", "0:5", 1);
+    }
+    {
+        // nobody, and a word the mod does not know (then host, and it says so)
+        std::string text;
+        platform::read_file(kDir + "expeditions_config.json", text);
+        json::Value v = json::parse(text);
+        v.set("settings_in_game", "nobody");
+        platform::write_file_atomic(kDir + "expeditions_config.json", v.dump(true));
+        Mod m;
+        m.set_clock(fake_clock);
+        m.load(&kApi, kDir);
+        CHECK(!m.may_change_settings(5));
+        m.join(&kApi, ctx, 5);
+        m.message(&kApi, ctx, 5, ui("main", "settings", "click"));
+        m.message(&kApi, ctx, 5, ui_change("settings", "events", true));
+        CHECK(!m.config().events);
+        CHECK(last_open().dump().find("только в файле expeditions_config.json") != std::string::npos);
+        v.set("settings_in_game", "admins");
+        platform::write_file_atomic(kDir + "expeditions_config.json", v.dump(true));
+        Mod b;
+        b.load(&kApi, kDir);
+        CHECK(b.config().settings_in_game == Config::Access::Host && !b.config().problems.empty());
+    }
+    // a session text that is not "slot:hex"
+    setenv("SHROUDLINK_CLIENT_SESSION", "garbage", 1);
+    {
+        Mod m;
+        m.load(&kApi, kDir);
+        CHECK(m.host_client() == 0);
+    }
+    setenv("SHROUDLINK_CLIENT_SESSION", "0:5", 1);
+}
+
 int main() {
     setenv("EXPED_LANG", "ru", 1);
+    // singleplayer: the addon in this process is client 5, the one the tests play
+    setenv("SHROUDLINK_CLIENT_SESSION", "0:5", 1);
 #ifndef _WIN32
     if (std::system(("mkdir -p " + kDir).c_str()) != 0) return 2;
 #endif
@@ -808,6 +914,7 @@ int main() {
     test_send_and_return();
     test_full_chests_and_recall();
     test_settings_and_broken_file();
+    test_settings_access();
     test_features();
     test_dangerous_region();
     test_english();

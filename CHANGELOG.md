@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.2.0
+- Who may change the settings in the game's window: `settings_in_game` in `expeditions_config.json`.
+  `host` (the default): only the player whose game runs the world; on a dedicated server nobody, the
+  admin edits the file (and anyone may press "Reload the settings file", which only applies it).
+  `everyone`: every player, as before. `nobody`: only the file. The others see the settings without the
+  buttons, and the server ignores such clicks. Asked for on Nexus: on a server any player could change
+  the loot multiplier.
+
 ## shroudlink first 1.1.0, shroudlink inside ShroudForge 1.0.0
 - `shroudlink-in-shroudforge-1.0.0.zip`: runs shroudlink (and so this mod) inside ShroudForge, as one of
   its native DLL mods (`mods\shroudlink\native-plugin.ini`). Tested in singleplayer with ShroudForge 1.7.9.

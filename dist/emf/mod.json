@@ -1,7 +1,7 @@
 {
   "id": "expeditions",
   "name": "Expeditions",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Send your base's survivors on expeditions: they come back with loot of their trade into the base's chests. Routes by region, rations, experience and levels, events on the way, repeat, an on-screen panel. English and Russian.",
   "authors": ["GronGM"],
   "emf": 24,

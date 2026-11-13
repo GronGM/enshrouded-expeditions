@@ -17,6 +17,9 @@ bool file_exists(const std::string& path);
 // Kazakh); EXPED_LANG=ru/en overrides (tests, other systems).
 bool system_reads_russian();
 
+// A variable of this process's environment (as set from any module in it); empty: not set.
+std::string env(const char* name);
+
 int64_t unix_now();
 // Seconds on a monotonic clock.
 double steady_seconds();

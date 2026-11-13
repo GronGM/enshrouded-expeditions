@@ -701,6 +701,7 @@ bool start(const EmfApi* api, const std::string& dir) {
     if (g_blocked) {
         log_line("off: the shroudlink version is installed too (shroudlink_mods\\expeditions.dll); keep one of them");
     } else {
+        g_mod.set_host_client(kClient);  // EMF windows are the local player's: whoever runs the world
         g_mod.load(&g_host, dir);
     }
     api->on_tick(on_tick, nullptr);

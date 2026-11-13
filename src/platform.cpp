@@ -90,7 +90,22 @@ bool system_reads_russian() {
         return false;
     }
 }
+
+std::string env(const char* name) {
+    // the process's own environment block, which SetEnvironmentVariable (Rust's set_var) changes;
+    // the C runtime's copy (getenv) does not see those changes
+    const std::wstring w = widen(name);
+    wchar_t buf[512] = {};
+    const DWORD n = GetEnvironmentVariableW(w.c_str(), buf, static_cast<DWORD>(sizeof(buf) / sizeof(buf[0])));
+    if (n == 0 || n >= sizeof(buf) / sizeof(buf[0])) return std::string();
+    return narrow(std::wstring(buf, n));
+}
 #else
+std::string env(const char* name) {
+    const char* v = std::getenv(name);
+    return v ? std::string(v) : std::string();
+}
+
 bool system_reads_russian() {
     const char* env = std::getenv("EXPED_LANG");
     return env && std::string(env) == "ru";

@@ -1,4 +1,4 @@
-Expeditions (a shroudlink mod for Enshrouded) 1.1.0
+Expeditions (a shroudlink mod for Enshrouded) 1.2.0
 ====================================================
 Send a survivor of your base on an expedition. They come back with loot of their
 trade: the Blacksmith brings ore, stone and gems, the Carpenter wood, resin and fibre,
@@ -67,6 +67,16 @@ every feature. The rest is in expeditions_config.json in the game folder:
                                 an hour) and area (the region's English name on the map).
 After editing, click "Reload the settings file" in the settings. A broken file is left
 alone: the mod runs with the defaults and shows the error in the settings.
+
+WHO CAN CHANGE THE SETTINGS IN THE GAME
+  settings_in_game              host (the default): only the player whose game runs the
+                                world (singleplayer, or a world you host from the game).
+                                On a dedicated server nobody: the admin edits this file
+                                and anyone can press "Reload the settings file".
+                                everyone: every player (as before 1.2.0).
+                                nobody: only the file.
+  The others see the settings without the buttons. The file itself is only for whoever
+  can open the game's (or the server's) folder.
 
 FILES
   expeditions_config.json   the settings

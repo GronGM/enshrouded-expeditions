@@ -1,4 +1,4 @@
-Expeditions for EMF (Enshrouded Modding Framework) 1.1.0
+Expeditions for EMF (Enshrouded Modding Framework) 1.2.0
 ========================================================
 The same mod as the shroudlink version, for players who use EMF.
 Send a survivor of your base on an expedition. They come back with loot of their

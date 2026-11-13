@@ -4,7 +4,7 @@
 #pragma once
 
 inline constexpr const char* kDefaultConfig = R"JSON({
-  "_help": "Expeditions: send a survivor away; they come back with loot by their trade. Edit this file and press 'Reload the settings file' in MODS > Expeditions > Settings. per_hour = [least, most] items per hour away; chance = how likely an item is per started hour (1 = always). Item names: shroudlink categories/items.tsv. Supplies: rations taken from the base's chests per hour away (raw food, roasted food, dishes: +0/+10/+25% loot). Events: caches, bad weather, getting hurt; a region's 'danger' (0..1, chance per hour of getting hurt) defaults by region, 'area' (the English region name) ties a route to the region on the map: with unlock_regions_by_visiting a route opens once a player has been there. Experience: time away levels a survivor up (more loot, less risk). language: auto (as Windows), ru or en. Names of known trades and regions are shown in the player's language; write your own name to show that instead.",
+  "_help": "Expeditions: send a survivor away; they come back with loot by their trade. Edit this file and press 'Reload the settings file' in MODS > Expeditions > Settings. per_hour = [least, most] items per hour away; chance = how likely an item is per started hour (1 = always). Item names: shroudlink categories/items.tsv. Supplies: rations taken from the base's chests per hour away (raw food, roasted food, dishes: +0/+10/+25% loot). Events: caches, bad weather, getting hurt; a region's 'danger' (0..1, chance per hour of getting hurt) defaults by region, 'area' (the English region name) ties a route to the region on the map: with unlock_regions_by_visiting a route opens once a player has been there. Experience: time away levels a survivor up (more loot, less risk). language: auto (as Windows), ru or en. settings_in_game: who may change the settings in the game's window: host (the player whose game runs the world; on a dedicated server nobody, the admin edits this file), everyone, or nobody. Names of known trades and regions are shown in the player's language; write your own name to show that instead.",
   "durations_minutes": [15, 30, 60, 120],
   "loot_multiplier": 1.0,
   "time_passes_while_game_closed": false,
@@ -16,6 +16,7 @@ inline constexpr const char* kDefaultConfig = R"JSON({
   "experience": {"enabled": true, "minutes_per_level": 30, "max_level": 10, "loot_bonus_per_level": 0.06, "risk_reduction_per_level": 0.07},
   "unlock_regions_by_visiting": true,
   "language": "auto",
+  "settings_in_game": "host",
   "professions": [
     {
       "name": "Blacksmith", "workshop": 1103055054,

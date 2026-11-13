@@ -240,6 +240,10 @@ Config parse_config(const json::Value& v) {
     c.unlock_by_visiting = v["unlock_regions_by_visiting"].as_bool(true);
     c.language = v["language"].string_or("auto");
     if (c.language != "ru" && c.language != "en") c.language = "auto";
+    const std::string access = v["settings_in_game"].string_or("host");
+    c.settings_in_game = access == "everyone" ? Config::Access::Everyone : access == "nobody" ? Config::Access::Nobody : Config::Access::Host;
+    if (access != "host" && access != "everyone" && access != "nobody")
+        c.problems.push_back(L("settings_in_game: «", "settings_in_game: \"") + access + L("» — бывает host, everyone или nobody; действует host", "\" can be host, everyone or nobody; host is in use"));
     for (const auto& pv : v["professions"].items()) {
         Profession p;
         p.workshop = static_cast<uint32_t>(pv["workshop"].as_number(0));
@@ -308,6 +312,9 @@ json::Value config_to_json(const Config& c, const json::Value& original) {
     v.set("experience", xp);
     v.set("unlock_regions_by_visiting", c.unlock_by_visiting);
     v.set("language", c.language);
+    v.set("settings_in_game", c.settings_in_game == Config::Access::Everyone ? "everyone"
+                              : c.settings_in_game == Config::Access::Nobody ? "nobody"
+                                                                             : "host");
     return v;
 }
 
@@ -1476,9 +1483,63 @@ void Mod::report_window(View& view, json::Value& content, std::string& title) {
     content.push(node_row({node_button("back", L("« Назад", "« Back"))}));
 }
 
-void Mod::settings_window(View& view, json::Value& content) {
+uint64_t Mod::host_client() const {
+    if (fixed_host_) return fixed_host_;
+    // the shroudlink addon of the player whose game runs the world shares this process and keeps
+    // its session there as "slot:client" (hex); a dedicated server has no addon of its own
+    const std::string session = platform::env("SHROUDLINK_CLIENT_SESSION");
+    const size_t colon = session.find(':');
+    if (colon == std::string::npos || colon + 1 >= session.size()) return 0;
+    uint64_t id = 0;
+    for (size_t i = colon + 1; i < session.size(); ++i) {
+        const char ch = session[i];
+        const int d = ch >= '0' && ch <= '9' ? ch - '0' : ch >= 'a' && ch <= 'f' ? ch - 'a' + 10 : ch >= 'A' && ch <= 'F' ? ch - 'A' + 10 : -1;
+        if (d < 0 || i - colon > 16) return 0;
+        id = id * 16 + static_cast<uint64_t>(d);
+    }
+    return id;
+}
+
+bool Mod::may_change_settings(uint64_t client) const {
+    switch (config_.settings_in_game) {
+    case Config::Access::Everyone: return true;
+    case Config::Access::Nobody: return false;
+    case Config::Access::Host: break;
+    }
+    const uint64_t host = host_client();
+    return host != 0 && client == host;
+}
+
+std::string Mod::settings_locked_text() const {
+    if (config_.settings_in_game == Config::Access::Nobody)
+        return L("Настройки меняются только в файле expeditions_config.json в папке игры (или сервера).",
+                 "The settings are changed only in expeditions_config.json in the game's (or the server's) folder.");
+    if (!host_client())
+        return L("Настройки меняет администратор сервера в файле expeditions_config.json, потом «Перечитать файл настроек».",
+                 "The server's admin changes the settings in expeditions_config.json, then \"Reload the settings file\".");
+    return L("Настройки может менять только тот, кто запустил мир.", "Only the player who runs the world can change the settings.");
+}
+
+void Mod::settings_window(View& view, json::Value& content, uint64_t client) {
     (void)view;
     for (const auto& p : config_.problems) push_text(content, "! " + p);
+    if (!may_change_settings(client)) {
+        // what is set, without the controls
+        const auto on = [](bool b) { return b ? L("вкл", "on") : L("выкл", "off"); };
+        push_caption(content, settings_locked_text());
+        content.push(node_row({node_heading(L("Язык", "Language")),
+                               node_text(config_.language == "ru" ? "Русский" : config_.language == "en" ? "English" : L("как в Windows", "as in Windows"))}));
+        content.push(node_row({node_heading(L("Множитель добычи", "Loot multiplier")), node_text("×" + fmt_number(config_.multiplier))}));
+        content.push(node_row({node_heading(L("Панель на экране", "Panel on the screen")), node_text(on(config_.hud))}));
+        content.push(node_row({node_heading(L("Еда из сундуков", "Food from the chests")), node_text(on(config_.supplies))}));
+        content.push(node_row({node_heading(L("События в пути", "Events on the way")), node_text(on(config_.events))}));
+        content.push(node_row({node_heading(L("Опыт", "Experience")), node_text(on(config_.experience))}));
+        content.push(node_row({node_heading(L("Регионы по посещению", "Regions by visiting")), node_text(on(config_.unlock_by_visiting))}));
+        content.push(node_row({node_heading(L("Уходят за пределы базы", "Leave the base")), node_text(on(config_.walk_away))}));
+        content.push(node_row({node_heading(L("Время идёт без игры", "Time passes while closed")), node_text(on(config_.offline_time))}));
+        content.push(node_row({node_button("reload", L("Перечитать файл настроек", "Reload the settings file")), node_button("back", L("« Назад", "« Back"))}));
+        return;
+    }
     content.push(node_heading(L("Язык", "Language")));
     content.push(node_tabs("language", {L("Как в Windows", "As in Windows"), "Русский", "English"},
                            config_.language == "ru" ? 1 : config_.language == "en" ? 2 : 0));
@@ -1519,7 +1580,7 @@ json::Value Mod::window(uint64_t client) {
             recall_window(view, content, title);
             id = "recall";
         } else if (view.screen == View::Screen::Settings) {
-            settings_window(view, content);
+            settings_window(view, content, client);
             title = L("Экспедиции: настройки", "Expeditions: settings");
             id = "settings";
         }
@@ -1557,6 +1618,16 @@ void Mod::show(void* ctx, uint64_t client) {
     }
     view.open_window = id;
     send(ctx, client, open);
+}
+
+void Mod::refuse_settings(uint64_t client, const std::string& what) {
+    // once per player: a log line per click would only fill the log
+    if (refused_logged_.insert(client).second) {
+        char id[24];
+        std::snprintf(id, sizeof id, "%016llx", static_cast<unsigned long long>(client));
+        log(std::string("settings: client ") + id + " may not change them in the game (" + what +
+            "; settings_in_game: " + (config_.settings_in_game == Config::Access::Nobody ? "nobody" : "host") + ")");
+    }
 }
 
 void Mod::message(const sl::HostApi* api, void* ctx, uint64_t client, const std::string& text) {
@@ -1617,6 +1688,9 @@ void Mod::message(const sl::HostApi* api, void* ctx, uint64_t client, const std:
         } else if (node == "do_recall") {
             recall(ctx, view.workshop);
             view.screen = View::Screen::Main;
+        } else if ((node == "mult_down" || node == "mult_up" || node == "language") && !may_change_settings(client)) {
+            refuse_settings(client, node);
+            view.message = settings_locked_text();
         } else if (node == "mult_down" || node == "mult_up") {
             // the step nearest to the value (the file may hold any), then one step up or down
             const size_t n = std::size(kMultipliers);
@@ -1653,6 +1727,12 @@ void Mod::message(const sl::HostApi* api, void* ctx, uint64_t client, const std:
                         : node == "unlock"     ? &config_.unlock_by_visiting
                                                : nullptr;
         if (!setting) return;
+        if (!may_change_settings(client)) {
+            refuse_settings(client, node);
+            view.message = settings_locked_text();
+            show(ctx, client);
+            return;
+        }
         const json::Value& value = event["event"]["value"];
         *setting = value.is_bool() ? value.as_bool() : !*setting;
         save_config();

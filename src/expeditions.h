@@ -16,7 +16,7 @@
 namespace exped {
 
 constexpr const char* kId = "expeditions";
-constexpr const char* kVersion = "1.1.0";
+constexpr const char* kVersion = "1.2.0";
 
 struct LootEntry {
     uint32_t item = 0;
@@ -58,6 +58,8 @@ struct Config {
     double risk_per_level = 0.07;   // -7% risk a level above 1
     bool unlock_by_visiting = true; // a region's routes open once a player has been there
     std::string language = "auto";  // "auto" (Windows' language), "ru" or "en"
+    // who may change the settings in the game's window (the file is always open to whoever has it)
+    enum class Access { Host, Everyone, Nobody } settings_in_game = Access::Host;
 
     const Profession* profession(uint32_t workshop) const;
 };
@@ -155,6 +157,11 @@ public:
     const Config& config() const { return config_; }
     void set_seed(uint32_t seed) { rng_.seed(seed); }
     void set_clock(double (*clock)()) { clock_ = clock; last_tick_ = clock_(); }
+    // The client of the player whose game runs the world. 0 (shroudlink): found in this process,
+    // where that player's addon keeps its session; none on a dedicated server.
+    void set_host_client(uint64_t client) { fixed_host_ = client; }
+    uint64_t host_client() const;
+    bool may_change_settings(uint64_t client) const;
     void advance(double seconds);  // as if the game ran that long (ticks do the rest)
     const std::vector<Finished>& history() const { return history_; }
     const std::map<uint32_t, Survivor>& survivors() const { return survivors_; }
@@ -174,7 +181,9 @@ private:
     void main_window(View& view, json::Value& content, uint32_t player);
     void send_window(View& view, json::Value& content, std::string& title, uint32_t player);
     void recall_window(View& view, json::Value& content, std::string& title);
-    void settings_window(View& view, json::Value& content);
+    void settings_window(View& view, json::Value& content, uint64_t client);
+    std::string settings_locked_text() const;
+    void refuse_settings(uint64_t client, const std::string& what);
     void report_window(View& view, json::Value& content, std::string& title);
     void update_hud(void* ctx, bool force = false);
     void send_entries(void* ctx, uint64_t client) const;
@@ -220,6 +229,8 @@ private:
     std::map<uint32_t, int> player_region_;  // player entity -> region they were last in
     std::map<uint64_t, std::string> hud_sent_;
     std::map<uint64_t, View> views_;
+    uint64_t fixed_host_ = 0;
+    std::set<uint64_t> refused_logged_;
     std::mt19937 rng_{std::random_device{}()};
     double (*clock_)() = &platform::steady_seconds;
     double last_tick_ = 0;
